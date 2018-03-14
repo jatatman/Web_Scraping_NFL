@@ -1,0 +1,56 @@
+import subprocess
+
+cmd = subprocess.Popen('ls /dev/sd*[a-z]', shell=True, stdout=subprocess.PIPE)
+drives, cmd_err = cmd.communicate()
+
+drives = drives.split()
+print drives
+
+t=[]
+print type(drives)
+for drive in drives:
+        c='smartctl -i ' + drive
+        cmd = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE)
+        o,e = cmd.communicate()
+        if "rpm" in o:
+                t.append(drive)
+drives=t
+
+print drives
+print type(drives)
+tt=0
+t=0
+for drive in drives:
+        c='smartctl -A ' + drive
+        cmd = subprocess.Popen(c, shell=True, stdout=subprocess.PIPE)
+        o,e = cmd.communicate()
+        o=o.splitlines()
+        for l in o:
+                if "194 Temperature_Celsius" in l:
+                        l=l.split()
+                        print drive +" "+ l[9]
+                        t=t+int(l[9])
+                        tt=tt+1
+print "Average: " + str(t/tt)
+root@BigBitch:/etc/scripts# python2.7 diskTemperatures.py
+['/dev/sda', '/dev/sdb', '/dev/sdc', '/dev/sdd', '/dev/sde', '/dev/sdf',\
+ '/dev/sdg', '/dev/sdh', '/dev/sdi', '/dev/sdj', '/dev/sdk', '/dev/sdl',\
+ '/dev/sdm', '/dev/sdn', '/dev/sdo', '/dev/sdp', '/dev/sdq']
+<type 'list'>
+['/dev/sdc', '/dev/sdd', '/dev/sde', '/dev/sdf', '/dev/sdg', '/dev/sdh',\
+ '/dev/sdi', '/dev/sdj', '/dev/sdk', '/dev/sdl', '/dev/sdm', '/dev/sdn', '/dev/sdo']
+<type 'list'>
+/dev/sdc 37
+/dev/sdd 37
+/dev/sde 31
+/dev/sdf 29
+/dev/sdg 33
+/dev/sdh 35
+/dev/sdi 30
+/dev/sdj 33
+/dev/sdk 32
+/dev/sdl 34
+/dev/sdm 34
+/dev/sdn 32
+/dev/sdo 33
+Average: 33
